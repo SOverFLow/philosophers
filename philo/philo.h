@@ -27,6 +27,7 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				num_of_philos;
 	int				meal_count;
+	int				count;
 	time_t			*last_meal;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	*print_turn;
@@ -39,10 +40,8 @@ void	get_exact_sleep_time(int msec);
 void	philo_w_f_and_eat(t_data *data, int id,
 			pthread_mutex_t	*r_fork, pthread_mutex_t *l_fork);
 void	init_data_int(t_data *data, char *argv[]);
-t_data	**init_data(char *argv[]);
+t_data	*init_data(char *argv[]);
 void	*routine(void *data_arg);
-void	check_time_die(t_data *data);
-void	check_meal_count(t_data *data);
-void	check_is_die_or_meal_c(t_data *data);
+int		check_time_die(t_data *data);
 
 #endif

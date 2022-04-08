@@ -5,7 +5,7 @@ CFLAGS=-Wall -Wextra -Werror -pthread
 OBJ=$(SRC:.c=.o)
 
 $(NAME): $(OBJ)
-	$(CC) $(OBJ) -o $(NAME)
+	$(CC) $(OBJ) $(CFLAGS) -o $(NAME)
 
 all: $(NAME)
 

@@ -19,7 +19,7 @@ void	*routine(void *data_arg)
 	pthread_mutex_t	*l_fork;
 	int				id;
 
-	data = *(t_data **)data_arg;
+	data = (t_data *)data_arg;
 	id = data->id;
 	r_fork = data->forks + id;
 	if (id < data->num_of_philos - 1)
@@ -40,7 +40,7 @@ void	*routine(void *data_arg)
 	return (NULL);
 }
 
-void	check_time_die(t_data *data)
+int	check_time_die(t_data *data)
 {
 	int		i;
 	time_t	c_t;
@@ -52,73 +52,41 @@ void	check_time_die(t_data *data)
 		i = 0;
 		while (i < data->num_of_philos)
 		{
+			if (data->count == (data->num_of_philos * data->meal_count))
+			{
+				return (1);
+			}
 			if (c_t - data->last_meal[i] > data->time_to_die)
 			{
 				pthread_mutex_lock(data->print_turn);
 				printf("%ld: %d died\n", get_curent_time_msec(), i + 1);
-				return ;
+				return (1);
 			}
 			i++;
 		}
 	}
-}
-
-void	check_meal_count(t_data *data)
-{
-	int	i;
-	int	num_lives;
-
-	num_lives = 1;
-	i = 0;
-	while (num_lives)
-	{
-		i = 0;
-		while (i < data->num_of_philos)
-		{
-			if (data->last_meal[i] < data->meal_count)
-			{
-				num_lives = 1;
-				break ;
-			}
-			else
-				num_lives = 0;
-			i++;
-		}
-	}
-}
-
-void	check_is_die_or_meal_c(t_data *data)
-{
-	if (data->meal_count < 0)
-		check_time_die(data);
-	else
-		check_meal_count(data);
 }
 
 int	main(int argc, char **argv)
 {
-	t_data		**data_args;
 	t_data		*data;
 	pthread_t	*threads;
 	int			i;
 
 	if (ft_break(argv, argc))
 		return (0);
-	data_args = init_data(argv + 1);
-	data = data_args[0];
+	data = init_data(argv + 1);
 	threads = (pthread_t *)malloc(sizeof(pthread_t) * data->num_of_philos);
 	i = 0;
 	while (i < data->num_of_philos)
 	{
-		if (data->meal_count < 0)
-			data->last_meal[i] = get_curent_time_msec();
-		else
-			data->last_meal[i] = 0;
-		pthread_create(threads + i, NULL, routine, data_args + i);
+		data->last_meal[i] = get_curent_time_msec();
+		pthread_create(threads + i, NULL, routine, data);
 		data->id = i;
 		usleep(100);
 		i++;
 	}
-	check_is_die_or_meal_c(data);
+	if (check_time_die(data))
+		return (0);
 	return (0);
 }
